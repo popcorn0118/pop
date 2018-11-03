@@ -1,5 +1,6 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"></loading>
         <div class="text-right mt-4">
             <button class="btn btn-primary" @click="openModel(true)">建立新的商品</button>
         </div>
@@ -62,7 +63,7 @@
                             </div>
                             <div class="form-group">
                             <label for="customFile">或 上傳圖片
-                                <i class="fas fa-spinner fa-spin"></i>
+                                <i class="fas fa-spinner fa-spin" v-if="status.fileUpLoading"></i>
                             </label>
                             <input type="file" id="customFile" class="form-control"
                                 ref="files" @change="uploadFile">
@@ -181,17 +182,22 @@ export default {
         return {
             products:[], // 取得商品列表
             tempProduct: {}, //商品建立
-
-            isNew: false
+            isNew: false,
+            isLoading: false,
+            status: {
+                fileUpLoading: false
+            } 
         };
     },
     methods: {
         getProducts() {
             const vm = this;
-            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
+            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`
+            vm.isLoading = true
             this.$http.get(api).then((response) => {
+                vm.isLoading = false
                 console.log('getProducts:',response.data)
-                vm.products = response.data.products;
+                vm.products = response.data.products
             })
         },
         openModel(isNew, item) {
@@ -213,22 +219,22 @@ export default {
         },
 
         updateProduct() {
-            const vm = this;
-            let api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product`;
-            let httpMethod = 'post';
+            const vm = this
+            let api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product`
+            let httpMethod = 'post'
             if (!vm.isNew) {
-                api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product/${vm.tempProduct.id}`;
-                httpMethod = 'put';
+                api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product/${vm.tempProduct.id}`
+                httpMethod = 'put'
             }
             this.$http[httpMethod](api, { data: vm.tempProduct }).then((response) => { // data: vm.tempProduct  <-  參照 API 格式
                 console.log(response.data)
-                // vm.products = response.data.products;
+                // vm.products = response.data.products
                 if(response.data.success){
-                    $('#productModal').modal('hide');
+                    $('#productModal').modal('hide')
                     vm.getProducts()
                 } else {
-                    $('#productModal').modal('hide');
-                    vm.getProducts();
+                    $('#productModal').modal('hide')
+                    vm.getProducts()
                     console.log('新增失敗')
                 }
             })
@@ -237,33 +243,37 @@ export default {
             const vm = this;
             const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product/${vm.tempProduct.id}`;
             this.$http.delete(api).then((response) => {
-                $('#delProductModal').modal('hide');
-                vm.getProducts();
+                $('#delProductModal').modal('hide')
+                vm.getProducts()
             })
         },
         uploadFile() {
             console.log(this) // https://developer.mozilla.org/en-US/docs/Web/API/FormData/FormData
             const uploadedFile = this.$refs.files.files[0];
-            const vm = this;
-            const formData = new FormData();
-            formData.append('file-to-upload', uploadedFile);
-            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`;
+            const vm = this
+            const formData = new FormData()
+            formData.append('file-to-upload', uploadedFile)
+            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`
+            vm.status.fileUpLoading = true
             this.$http.post(url, formData, {
                 headers:{
                     'Content-Type':'multipart/form-data'
                 }
             }).then((response) => {
                 console.log(response.data)
+                vm.status.fileUpLoading = false
                 if (response.data.success) {
                     // vm.tempProduct.imageUrl = response.data.imageUrl;
                 vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl) //將路徑強制寫入，就有雙向綁定
-                }    
+                } else {
+                    this.$bus.$emit('messsage:push', response.data.message, 'danger')
+                }
             })
         },
     },
     created() { //直接觸發
-        this.getProducts();
-        // this.updateProduct();
+        this.getProducts()
+        // this.updateProduct()
     },
 }
 </script>
