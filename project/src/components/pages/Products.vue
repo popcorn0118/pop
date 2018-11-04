@@ -6,6 +6,7 @@
         </div>
         <table class="table mt-4">
             <thead>
+                <th width="80">編號</th>
                 <th width="120">分類</th>
                 <th>產品名稱</th>
                 <th width="120">原價</th>
@@ -16,13 +17,14 @@
             </thead>
             <tbody>
                 <tr v-for="item in products" :key="item.id">
+                    <td>{{ item.num }}</td>
                     <td>{{ item.category }}</td>
                     <td>{{ item.title }}</td>
                     <td class="text-right">
-                        {{ item.origin_price }}
+                        {{ item.origin_price | currency }}
                     </td>
                     <td class="text-right">
-                        {{ item.price }}
+                        {{ item.price | currency }}
                     </td>
                     <td>
                         <span v-if="item.is_enabled" class="text-success">啟用</span>
@@ -39,6 +41,38 @@
                 </tr>
             </tbody>
         </table>
+
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item"
+                :class="{'disabled': !pagination.has_pre}"
+                @click.prevent="getProducts(pagination.current_page - 1)" 
+                >
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item" 
+                v-for="page in pagination.total_pages" 
+                :key="page"
+                :class="{'active': pagination.current_page === page }"
+                @click.prevent="getProducts(page)"
+                >
+                    <a class="page-link" href="#">{{ page }}</a>
+                </li>
+                <li class="page-item"
+                :class="{'disabled': !pagination.has_next}"
+                @click.prevent="getProducts(pagination.current_page + 1)"
+                >
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
         <!-- Modal -->
         <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -182,6 +216,7 @@ export default {
         return {
             products:[], // 取得商品列表
             tempProduct: {}, //商品建立
+            pagination: {}, //分頁
             isNew: false,
             isLoading: false,
             status: {
@@ -190,14 +225,15 @@ export default {
         };
     },
     methods: {
-        getProducts() {
+        getProducts(page = 1) { //ES6 參數預設值 1，沒帶入數值時使用
             const vm = this;
-            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`
+            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products?page=${page}`
             vm.isLoading = true
             this.$http.get(api).then((response) => {
                 vm.isLoading = false
                 console.log('getProducts:',response.data)
                 vm.products = response.data.products
+                vm.pagination = response.data.pagination
             })
         },
         openModel(isNew, item) {

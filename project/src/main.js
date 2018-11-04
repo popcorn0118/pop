@@ -10,11 +10,13 @@ import 'bootstrap'
 import App from './App'
 import router from './router'
 import './bus'
+import currencyFirty from './filters/currency';
 
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
 
 Vue.component('Loading', Loading);
+Vue.filter('currency', currencyFirty)
 
 axios.defaults.withCredentials = true; //存在前端cookies
 
