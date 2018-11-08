@@ -126,7 +126,7 @@ export default {
       this.$http.post(url, { data: cart }).then((response) => {
         console.log(response);
         vm.status.loadingItem = '';
-        vm.this.getCart();
+        vm.getCart();
         $('#productModal').modal('hide');
       });
     },
