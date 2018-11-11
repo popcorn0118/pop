@@ -97,9 +97,9 @@
                             </td>
                             <td class="align-middle">
                                 {{ item.product.title }}
-                                <!-- <div class="text-success" v-if="item.coupon">
+                                <div class="text-success" v-if="item.coupon">
                                 已套用優惠券
-                                </div> -->
+                                </div>
                             </td>
                             <td class="align-middle">{{ item.qty }}/{{ item.product.unit }}</td>
                             <td class="align-middle text-right">{{ item.final_total }}</td>
@@ -117,7 +117,7 @@
                     </tfoot>
                 </table>
                 <div class="input-group mb-3 input-group-sm">
-                    <input type="text" class="form-control" placeholder="請輸入優惠碼">
+                    <input type="text" class="form-control" v-model="coupon_code" placeholder="請輸入優惠碼">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="button"
                             @click="addCouponCode">
