@@ -6,6 +6,8 @@ import VueAxios from 'vue-axios';
 import Loading from 'vue-loading-overlay'; //loading套件
 import 'vue-loading-overlay/dist/vue-loading.css';
 import 'bootstrap'
+import VeeValidate from 'vee-validate';
+import zhTwValidate from 'vee-validate/dist/locale/zh_TW'; 
 
 import App from './App';
 import router from './router';
@@ -15,9 +17,13 @@ import dateFilter from './filters/date';
 
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
-Vue.component('Loading', Loading);
-Vue.filter('currency', currencyFirty);
-Vue.filter('date', dateFilter);
+
+Vue.use(VeeValidate);
+VeeValidate.Validator.localize('zhTw', zhTwValidate) //email 中文語系
+
+Vue.component('Loading', Loading); //loading套件
+Vue.filter('currency', currencyFirty); //金額 + "$"
+Vue.filter('date', dateFilter); //日期轉換 yyyy-mm-dd 
 
 axios.defaults.withCredentials = true; //存在前端cookies
 
