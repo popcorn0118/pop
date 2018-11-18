@@ -70,7 +70,7 @@
                         </div>
                         <button type="button" class="btn btn-primary"
                         @click="addtoCart(product.id, product.num)">
-                        <!-- <i class="fas fa-spinner fa-spin" v-if="product.id === status.loadingItem"></i> -->
+                        <i class="fas fa-spinner fa-spin" v-if="product.id === status.loadingItem"></i>
                         加到購物車
                         </button>
                     </div>
@@ -276,7 +276,9 @@ export default {
         if (result) {
                 this.$http.post(url, { data: order }).then((response) => {
                     console.log('訂單已建立', response)
-                    // vm.getCart()
+                    if(response.data.success) {
+                        vm.$router.push(`/customer_checkout/${response.data.orderId}`) //轉換頁面
+                    }
                     vm.isLoading = false
                 });
             } else {
