@@ -38,7 +38,7 @@ new Vue({
 router.beforeEach((to, from, next) => {
   console.log('to', to, 'from', from, 'next', next);
   if (to.meta.requiresAuth) {
-    // console.log('這裡需要驗證喔 popcorn2')
+    // console.log('這裡需要驗證喔')
     const api = `${process.env.APIPATH}/api/user/check`
         const vm = this;
         axios.post(api, vm.user).then((response) => {
