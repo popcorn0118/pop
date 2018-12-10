@@ -11,7 +11,7 @@
             </thead>
             <tbody>
                 <tr v-for="item in orders" :key="item.id">
-                    <td>{{ item.paid_date | data }}</td>
+                    <td>{{ item.paid_date | date }}</td>
                     <td>{{ item.user.email }}</td>
                     <td>
                         <ul>

@@ -1,13 +1,16 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 // import HelloWorld from '@/components/HelloWorld'
-import Dashboard from '@/components/Dashboard'
-import Login from '@/components/pages/Login'
-import Products from '@/components/pages/Products'
-import Coupons from '@/components/pages/Coupons'
-import Orders from '@/components/pages/Orders'
-import CustomerOrders from '@/components/pages/CustomerOrders'
-import CustomerCheckout from '@/components/pages/CustomerCheckout'
+import Login from '@/components/admin/pages/Login'
+import Dashboard from '@/components/admin/Dashboard'
+import Products from '@/components/admin/pages/Products'
+import Coupons from '@/components/admin/pages/Coupons'
+import Orders from '@/components/admin/pages/Orders'
+import CustomerOrders from '@/components/admin/pages/CustomerOrders'
+import CustomerCheckout from '@/components/admin/pages/CustomerCheckout'
+
+import Home from '@/components/home/Home'
+import ProductsHome from '@/components/home/pages/Products'
 
 Vue.use(Router)
 
@@ -69,6 +72,23 @@ export default new Router({
           component: CustomerCheckout,
         }
       ]
-    }
+    },
+    {
+      path: '/home',
+      name: 'Home',
+      component: Home,  
+      children: [
+        {
+          path: 'products',
+          name: 'ProductsHome',
+          component: ProductsHome,
+        },
+        {
+          path: 'customer_checkout/:orderId',
+          name: 'CustomerCheckout',
+          component: CustomerCheckout,
+        }
+      ]
+    },
   ]
 })
