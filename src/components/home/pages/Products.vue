@@ -2,7 +2,9 @@
     <div>
         <loading :active.sync="isLoading"></loading>
         <div class="row mt-4">
-            <div class="col-md-4 mb-4" v-for="item in products" :key="item.id">
+            {{postTitle}} {{postTitle}}
+            <!-- {{newPosttitle}} -->
+            <div class="col-md-4 mb-4" v-for="item in products" :key="item.id" v-if="item.category === postTitle">
                 <div class="card border-0 shadow-sm">
                     <div style="height: 150px; background-size: cover; background-position: center"
                         :style="{backgroundImage: `url(${item.imageUrl})`}"
@@ -85,118 +87,122 @@ import $ from 'jquery';
 
 export default {
     name: 'Products',
-  data() {
-    return {
-        products: [],
-        product: {},
-        status: {
-            loadingItem: ''
-        },
-        form: {// 參照 API 格式
-            user: {
-                name: '',
-                email: '',
-                tel: '',
-                address: '',
+    // props: ['post-title'],
+    props: {
+        postTitle: String
+    },
+    data() {
+        return {
+            products: [],
+            product: {},
+            status: {
+                loadingItem: ''
             },
-            message: '',
+            form: {// 參照 API 格式
+                user: {
+                    name: '',
+                    email: '',
+                    tel: '',
+                    address: '',
+                },
+                message: '',
+            },
+            isLoading: false,
+            cart: {},
+            coupon_code: '',
+        };
+    },
+    // data: function() {
+    //     return {
+    //         newPosttitle: this.postTitle
+    //     }
+    // },
+    methods: {
+        getProducts() {
+            const vm = this;
+            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
+            vm.isLoading = true;
+            this.$http.get(url).then((response) => {
+                vm.products = response.data.products;
+                vm.isLoading = false;
+            });
         },
-        isLoading: false,
-        cart: {},
-        coupon_code: ''
-    };
-  },
-  methods: {
-    getProducts() {
-        const vm = this;
-        const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
-        vm.isLoading = true;
-        this.$http.get(url).then((response) => {
-            vm.products = response.data.products;
-            console.log(response);
-            vm.isLoading = false;
-        });
-    },
-    getProduct(id) {
-        const vm = this;
-        const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/product/${id}`;
-        vm.status.loadingItem = id;
-        this.$http.get(url).then((response) => {
-            vm.product = response.data.product;
-            $('#productModal').modal('show');
-            console.log(response);
-            vm.status.loadingItem = '';
-        });
-    },
-    addtoCart(id, qty = 1) {
-      const vm = this;
-      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart`;
-      vm.status.loadingItem = id;
-      const cart = {
-        product_id: id,
-        qty,
-      };
-      this.$http.post(url, { data: cart }).then((response) => {
-        vm.status.loadingItem = '';
-        vm.getCart();
-        $('#productModal').modal('hide');
-      });
-    },
-    getCart() {
+        getProduct(id) {
+            const vm = this;
+            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/product/${id}`;
+            vm.status.loadingItem = id;
+            this.$http.get(url).then((response) => {
+                vm.product = response.data.product;
+                $('#productModal').modal('show');
+                vm.status.loadingItem = '';
+            });
+        },
+        addtoCart(id, qty = 1) {
         const vm = this;
         const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart`;
-        vm.isLoading = true;
-        this.$http.get(url).then((response) => {
-            console.log(response.data.data.carts);
-            vm.cart = response.data.data;
-            vm.isLoading = false;
-        });
-    },
-    removeCartItem(id) {
-        const vm = this;
-        const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart/${id}`;
-        vm.isLoading = true;
-        this.$http.delete(url).then(() => {
+        vm.status.loadingItem = id;
+        const cart = {
+            product_id: id,
+            qty,
+        };
+        this.$http.post(url, { data: cart }).then((response) => {
+            vm.status.loadingItem = '';
             vm.getCart();
-            vm.isLoading = false;
+            $('#productModal').modal('hide');
         });
-    },
-    addCouponCode() {
-        const vm = this;
-        const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/coupon`;
-        const coupon = {
-            code: vm.coupon_code
-        }
-        vm.isLoading = true;
-        this.$http.post(url, { data: coupon }).then((response) => {
-            console.log(response)
-            vm.getCart()
-            vm.isLoading = false
-        });
-    },
-    createOrder() {
-        const vm = this;
-        const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/order`;
-        const order = vm.form
-        vm.isLoading = true;
-        this.$validator.validate().then((result) => {
-        if (result) {
-                this.$http.post(url, { data: order }).then((response) => {
-                    console.log('訂單已建立', response)
-                    if(response.data.success) {
-                        vm.$router.push(`/customer_checkout/${response.data.orderId}`) //轉換頁面
-                    }
-                    vm.isLoading = false
-                });
-            } else {
-                console.log('欄位不完整')
-                vm.isLoading = false
-                alert('欄位不完整')
+        },
+        getCart() {
+            const vm = this;
+            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart`;
+            vm.isLoading = true;
+            this.$http.get(url).then((response) => {
+                vm.cart = response.data.data;
+                vm.isLoading = false;
+            });
+        },
+        removeCartItem(id) {
+            const vm = this;
+            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart/${id}`;
+            vm.isLoading = true;
+            this.$http.delete(url).then(() => {
+                vm.getCart();
+                vm.isLoading = false;
+            });
+        },
+        addCouponCode() {
+            const vm = this;
+            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/coupon`;
+            const coupon = {
+                code: vm.coupon_code
             }
-        });
-        
-    }
-  },
+            vm.isLoading = true;
+            this.$http.post(url, { data: coupon }).then((response) => {
+                vm.getCart()
+                vm.isLoading = false
+            });
+        },
+        createOrder() {
+            const vm = this;
+            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/order`;
+            const order = vm.form
+            vm.isLoading = true;
+            this.$validator.validate().then((result) => {
+            if (result) {
+                    this.$http.post(url, { data: order }).then((response) => {
+                        console.log('訂單已建立', response)
+                        if(response.data.success) {
+                            vm.$router.push(`/customer_checkout/${response.data.orderId}`) //轉換頁面
+                        }
+                        vm.isLoading = false
+                    });
+                } else {
+                    console.log('欄位不完整')
+                    vm.isLoading = false
+                    alert('欄位不完整')
+                }
+            });
+        }
+    },
 created() {
     this.getProducts();
     this.getCart();

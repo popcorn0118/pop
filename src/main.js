@@ -8,6 +8,7 @@ import 'vue-loading-overlay/dist/vue-loading.css';
 import 'bootstrap'
 import VeeValidate from 'vee-validate';
 import zhTwValidate from 'vee-validate/dist/locale/zh_TW'; 
+import store from './store'; //Vuex
 
 import App from './App';
 import router from './router';
@@ -32,7 +33,8 @@ new Vue({
   el: '#app',
   router,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  store
 })
 
 router.beforeEach((to, from, next) => {
